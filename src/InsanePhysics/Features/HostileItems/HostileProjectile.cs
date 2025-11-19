@@ -8,7 +8,7 @@ public class HostileProjectile : MonoBehaviour {
 
     private const float RagdollTime = 1f;
     private const float BonkForce = 10f;
-    private const float BonkRange = 3f;
+    private const float BonkRange = 6f;
     private const float MinBonkVelocity = 5f;
     private const float ArmingDelay = 0.05f;
 

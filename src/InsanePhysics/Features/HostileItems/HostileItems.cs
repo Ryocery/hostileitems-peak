@@ -17,7 +17,7 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
     private float _timer;
     private const float CheckInterval = 0.3f;
     private const float Chance = 0.01f;
-    private const float DetectionRadius = 50.0f;
+    private const float DetectionRadius = 150.0f;
     private int _layerMask;
 
     private void Start() {
