@@ -15,7 +15,7 @@ public partial class Plugin : BaseUnityPlugin {
 
     public static ConfigEntry<float> PlayerForceMultiplier { get; private set; } = null!;
     public static ConfigEntry<float> HostileObjectPower { get; private set; } = null!;
-    public static ConfigEntry<bool> EnableHostileObjects { get; private set; } = null!;
+    private static ConfigEntry<bool> EnableHostileObjects { get; set; } = null!;
     
     private void Awake() {
         Log = Logger;
@@ -24,7 +24,6 @@ public partial class Plugin : BaseUnityPlugin {
 
         EnableHostileObjects = Config.Bind("Chaos", "EnableHostileObjects", true, "If true, items occasionally launch themselves at players.");
         HostileObjectPower = Config.Bind("Chaos", "HostileObjectPower", 300.0f, "Sets the force of hostile items flying towards players.");
-
 
         _harmony = new Harmony(Id);
         _harmony.PatchAll();
