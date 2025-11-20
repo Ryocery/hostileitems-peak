@@ -5,6 +5,7 @@ using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using Zorro.Core; // Required for ItemInstanceData
 
 namespace InsanePhysics.Features.HostileItems;
 
@@ -65,7 +66,6 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
                 }
             }
         }
-
         else if (photonEvent.Code == WakeUpEventCode) {
             object[] data = (object[])photonEvent.CustomData;
             int viewID = (int)data[0];
@@ -111,8 +111,7 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
             if (itemComponent is not null) {
                 Character? holder = GetHolder(itemComponent);
                 if (holder is not null) {
-                    holder.refs.items.DropAllItems(includeBackpack: false);
-                    LaunchObjectAtPlayer(rb, player);
+                    StartCoroutine(DropHeldItemAndAttack(holder, player));
                     break;
                 }
             }
@@ -132,6 +131,34 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
             
             LaunchObjectAtPlayer(rb, player);
             break;
+        }
+    }
+    
+    private IEnumerator DropHeldItemAndAttack(Character holder, Character target) {
+        if (holder.data.currentItem is null || !holder.refs.items.currentSelectedSlot.IsSome) yield break;
+
+        byte slot = holder.refs.items.currentSelectedSlot.Value;
+        ItemSlot itemSlot = holder.player.GetItemSlot(slot);
+        Item heldItem = holder.data.currentItem;
+        
+        holder.refs.items.photonView.RPC("DropItemRpc", RpcTarget.All, 
+            0f,
+            slot, 
+            heldItem.transform.position, 
+            heldItem.rig.linearVelocity, 
+            heldItem.transform.rotation, 
+            itemSlot.data, 
+            true
+        );
+
+        yield return new WaitForSeconds(0.1f);
+        if (holder.refs.items.droppedItems.Count <= 0) yield break;
+        
+        PhotonView droppedView = holder.refs.items.droppedItems[^1];
+        Rigidbody? newRb = droppedView?.GetComponent<Rigidbody>();
+        
+        if (newRb is not null) {
+            LaunchObjectAtPlayer(newRb, target);
         }
     }
 
