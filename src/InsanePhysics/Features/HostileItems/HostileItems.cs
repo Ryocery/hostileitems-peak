@@ -93,8 +93,8 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
         }
     }
     
-    private static bool IsItemHeld(Item item) {
-        return Character.AllCharacters.Any(character => character.data.currentItem == item);
+    private static Character? GetHolder(Item item) {
+        return Character.AllCharacters.FirstOrDefault(character => character.data.currentItem == item);
     }
 
     private void AttemptHostilePhysics(Character player) {
@@ -104,13 +104,21 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
             if (Random.value > Chance) continue;
 
             Rigidbody rb = col.attachedRigidbody;
-            Item? itemComponent = rb?.GetComponentInParent<Item>();
-
-            if (itemComponent is null) continue;
-            if (IsItemHeld(itemComponent)) continue;
-            if (rb?.GetComponentInParent<Character>() is not null) continue;
-            if (rb?.GetComponent<HostileProjectile>() is not null) continue;
             if (rb is null) continue;
+
+            Item? itemComponent = rb.GetComponentInParent<Item>();
+
+            if (itemComponent is not null) {
+                Character? holder = GetHolder(itemComponent);
+                if (holder is not null) {
+                    holder.refs.items.DropAllItems(includeBackpack: false);
+                    LaunchObjectAtPlayer(rb, player);
+                    break;
+                }
+            }
+            
+            if (rb.GetComponentInParent<Character>() is not null) continue;
+            if (rb.GetComponent<HostileProjectile>() is not null) continue;
             
             Vector3 directionToPlayer = player.Center - rb.transform.position;
             float distance = directionToPlayer.magnitude;
