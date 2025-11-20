@@ -9,10 +9,9 @@ using UnityEngine;
 namespace InsanePhysics.Features.HostileItems;
 
 public class HostileItems : MonoBehaviour, IOnEventCallback {
-    public static SFX_Instance[]? CachedBonkSounds;
-
-    public const byte BonkEventCode = 42;
-    public const byte WakeUpEventCode = 43;
+    private static SFX_Instance[]? _cachedBonkSounds;
+    private const byte BonkEventCode = 42;
+    private const byte WakeUpEventCode = 43;
 
     private float _timer;
     private const float CheckInterval = 0.3f;
@@ -33,16 +32,14 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
         PhotonNetwork.RemoveCallbackTarget(this);
     }
 
-    private IEnumerator LoadBonkSounds() {
+    private static IEnumerator LoadBonkSounds() {
         yield return null;
         Item? coconut = Resources.FindObjectsOfTypeAll<Item>().FirstOrDefault(x => x.name.Contains("Coconut"));
-        if (coconut is null) yield break;
+        Bonkable? bonk = coconut?.GetComponent<Bonkable>();
+        if (bonk?.bonk == null) yield break;
 
-        Bonkable? bonk = coconut.GetComponent<Bonkable>();
-        if (bonk is null || bonk.bonk == null) yield break;
-
-        CachedBonkSounds = bonk.bonk;
-        Debug.Log($"[InsanePhysics] Stole audio from {coconut.name}");
+        _cachedBonkSounds = bonk.bonk;
+        Debug.Log($"[InsanePhysics] Stole audio from {coconut?.name}");
     }
 
     public static void SendBonkEvent(Vector3 position) {
@@ -51,7 +48,7 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
         PhotonNetwork.RaiseEvent(BonkEventCode, content, options, SendOptions.SendReliable);
     }
 
-    public static void SendWakeUpEvent(int viewID) {
+    private static void SendWakeUpEvent(int viewID) {
         RaiseEventOptions options = new() { Receivers = ReceiverGroup.Others };
         object[] content = [viewID];
         PhotonNetwork.RaiseEvent(WakeUpEventCode, content, options, SendOptions.SendReliable);
@@ -62,8 +59,8 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
             object[] data = (object[])photonEvent.CustomData;
             Vector3 pos = (Vector3)data[0];
 
-            if (CachedBonkSounds != null && CachedBonkSounds.Length > 0) {
-                foreach (SFX_Instance sfx in CachedBonkSounds) {
+            if (_cachedBonkSounds != null && _cachedBonkSounds.Length > 0) {
+                foreach (SFX_Instance sfx in _cachedBonkSounds) {
                     if (sfx != null) sfx.Play(pos);
                 }
             }
@@ -95,6 +92,10 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
             AttemptHostilePhysics(victim);
         }
     }
+    
+    private static bool IsItemHeld(Item item) {
+        return Character.AllCharacters.Any(character => character.data.currentItem == item);
+    }
 
     private void AttemptHostilePhysics(Character player) {
         Collider[] nearbyColliders = Physics.OverlapSphere(player.Center, DetectionRadius);
@@ -103,10 +104,14 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
             if (Random.value > Chance) continue;
 
             Rigidbody rb = col.attachedRigidbody;
-            if (rb?.GetComponentInParent<Item>() is null) continue;
-            if (rb.GetComponentInParent<Character>() is not null) continue;
-            if (rb.GetComponent<HostileProjectile>() is not null) continue;
+            Item? itemComponent = rb?.GetComponentInParent<Item>();
 
+            if (itemComponent is null) continue;
+            if (IsItemHeld(itemComponent)) continue;
+            if (rb?.GetComponentInParent<Character>() is not null) continue;
+            if (rb?.GetComponent<HostileProjectile>() is not null) continue;
+            if (rb is null) continue;
+            
             Vector3 directionToPlayer = player.Center - rb.transform.position;
             float distance = directionToPlayer.magnitude;
 
@@ -116,13 +121,13 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
                     if (hit.collider.transform.root != rb.transform.root) continue;
                 }
             }
-
+            
             LaunchObjectAtPlayer(rb, player);
             break;
         }
     }
 
-    private void WakeUpItem(Rigidbody rb) {
+    private static void WakeUpItem(Rigidbody rb) {
         rb.transform.SetParent(null);
         rb.isKinematic = false;
         rb.useGravity = true;
@@ -133,7 +138,7 @@ public class HostileItems : MonoBehaviour, IOnEventCallback {
         }
     }
 
-    private void LaunchObjectAtPlayer(Rigidbody rb, Character player) {
+    private static void LaunchObjectAtPlayer(Rigidbody rb, Character player) {
         Debug.Log($"[InsanePhysics] {rb.name} is attacking {player.characterName}!");
         
         WakeUpItem(rb);
