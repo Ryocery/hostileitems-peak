@@ -9,8 +9,8 @@ namespace HostileItems;
 [BepInAutoPlugin]
 public partial class Plugin : BaseUnityPlugin {
     public static ManualLogSource Log { get; private set; } = null!;
+    public static new Config Config { get; private set; } = null!; 
     
-    private Config? _config;
     private ProjectileHandler? _projectileHandler;
     private NetworkHandler? _networkHandler;
     private Harmony? _harmony;
@@ -18,17 +18,17 @@ public partial class Plugin : BaseUnityPlugin {
     private void Awake() {
         Log = Logger;
         Log.LogInfo($"Plugin {Name} is loading...");
-        _config = new Config(Config);
+        Config = new Config(base.Config);
 
         _harmony = new Harmony(Id);
         _harmony.PatchAll();
         Log.LogInfo("Harmony Patches applied.");
 
-        if (_config.EnableHostileObjects.Value) {
+        if (Config.EnableHostileObjects.Value) {
             _networkHandler = gameObject.AddComponent<NetworkHandler>();
             GameObject o = gameObject;
             _projectileHandler = o.AddComponent<ProjectileHandler>();
-            _projectileHandler.Initialize(_config);
+            _projectileHandler.Initialize(Config);
             Log.LogInfo("Hostile Physics Handlers initialized.");
         }
 

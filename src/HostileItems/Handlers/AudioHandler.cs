@@ -25,7 +25,7 @@ public static class AudioHandler {
         if (_cachedBonkSounds == null || _cachedBonkSounds.Length == 0) return;
 
         foreach (SFX_Instance sfx in _cachedBonkSounds) {
-            if (sfx != null) sfx.Play(position);
+            if (sfx) sfx.Play(position);
         }
     }
 }
