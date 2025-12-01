@@ -6,7 +6,7 @@ repository = "https://thunderstore.io"
 
 [package]
 namespace = "Ryocery"
-name = "InsanePhysics"
+name = "HostileItems"
 description = "TODO: Fill in short mod description."
 websiteUrl = "" # TODO: Add a link to your mod repository here (optional)
 containsNsfwContent = false
@@ -20,7 +20,7 @@ readme = "../../README.md"
 outdir = "../../artifacts/thunderstore/"
 
 [[build.copy]]
-source = "../../artifacts/bin/InsanePhysics/release/com.github.ryocery.insanephysics.dll"
+source = "../../artifacts/bin/HostileItems/release/com.github.ryocery.HostileItems.dll"
 target = "plugins/"
 
 [[build.copy]]
