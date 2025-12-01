@@ -2,7 +2,6 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using HostileItems.Handlers;
-using InsanePhysics;
 using UnityEngine;
 
 namespace HostileItems;
