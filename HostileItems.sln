@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7D3AA1A5-BC9D-4BE5-B733-F82CEDB335DD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsanePhysics", "src\InsanePhysics\InsanePhysics.csproj", "{257E3C1A-9D10-47E9-B4BF-859E30665E5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HostileItems", "src\HostileItems\HostileItems.csproj", "{257E3C1A-9D10-47E9-B4BF-859E30665E5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
