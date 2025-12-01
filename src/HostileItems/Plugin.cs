@@ -29,6 +29,7 @@ public partial class Plugin : BaseUnityPlugin {
             _networkHandler = gameObject.AddComponent<NetworkHandler>();
             GameObject o = gameObject;
             _projectileHandler = o.AddComponent<ProjectileHandler>();
+            _projectileHandler.Initialize(_config);
             Log.LogInfo("Hostile Physics Handlers initialized.");
         }
 

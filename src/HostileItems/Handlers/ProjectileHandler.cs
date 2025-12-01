@@ -10,8 +10,7 @@ using Random = UnityEngine.Random;
 namespace HostileItems.Handlers;
 
 public class ProjectileHandler : MonoBehaviour {
-    private readonly MonoBehaviour _runner;
-    private readonly Config _config;
+    private Config _config = null!;
     
     private float _timer;
     private const float CheckInterval = 0.3f;
@@ -19,11 +18,8 @@ public class ProjectileHandler : MonoBehaviour {
     private const float DetectionRadius = 150.0f;
     private int _layerMask;
     
-    public ProjectileHandler(MonoBehaviour runner, Config config) {
-        _runner = runner;
+    public void Initialize(Config config) {
         _config = config;
-        _layerMask = Physics.AllLayers;
-        _runner.StartCoroutine(AudioHandler.LoadSounds());
     }
     
     public void Dispose() { }
